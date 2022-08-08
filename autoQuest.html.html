@@ -1,0 +1,387 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+  <title>進捗管理</title>
+  </head>
+
+  <body>
+      <label><input type="checkbox" id="checkbox">称号上限に到達していないモンスターのみ</label>
+<br>
+    <dev>
+      <button 
+      type="button"
+      onclick="setMonster()">
+      モンスター抽選
+    </button>
+    <button 
+    type="button"
+    onclick="clearMonster()">
+    モンスターリセット
+  </button>
+    </dev>
+    
+    <p id="monster">モンスター：</p>
+    <p id="huntCount"></p>
+    <input type="button" 
+      onclick="setQuest()"
+      value="モンスターを含むクエストを抽選" id="checkButton"/>
+    <p id="questName"></p>
+    <p id="questMonster"></p>
+    <button 
+      type="button"
+      onclick="questClear()">
+      クエスト達成
+    </button>
+    <p id="status"></p>
+
+    <button 
+      type="button"
+      onclick="save()">
+      データ保存
+    </button>
+    <button 
+      type="button"
+      onclick="update()">
+      データ更新
+    </button>
+    <ul id="list">
+    </ul>
+    <p id ="lastSaveDate"></p>
+    <textarea id="saveData" name="saveData">
+    </textarea>
+  </body>
+</html>
+
+
+<script>
+    var targetMonster;
+    var targetQuest;
+    var monsterFilterCheck = false;
+    function valueChange(){
+    // イベントが発生した時の処理
+    monsterFilterCheck = !monsterFilterCheck;
+}
+
+let checkbox = document.getElementById('checkbox');
+checkbox.addEventListener('change', valueChange);
+    var setMonster = function () {
+      let filterMonster
+      if(monsterFilterCheck){
+        filterMonster = monsterData.filter(monster => {
+        return monster.score < monster.norma
+        })
+      }else{
+        filterMonster = monsterData;
+      }
+      
+      targetMonster = filterMonster[Math.floor(Math.random()*filterMonster.length)]
+      var str = " 現在の狩猟数は「"+ targetMonster.score +"体」";
+      document.getElementById('huntCount').innerHTML = str ;
+      document.getElementById('monster').innerHTML = "モンスター："+ targetMonster.name ;
+    }
+    var clearMonster = function(){
+      targetMonster = null;
+      var str = " 現在の狩猟数は「  体」";
+      document.getElementById('huntCount').innerHTML = str ;
+      document.getElementById('monster').innerHTML = "モンスター："
+    }
+    var setQuest = function (){
+      var filterQuest
+      if(targetMonster != null){
+        filterQuest = questData.filter(quest => {
+        return quest.monsterList.includes(targetMonster.id)
+      })
+      }else{
+        filterQuest = questData;
+      }
+      
+      targetQuest = filterQuest[Math.floor(Math.random()*filterQuest.length)]
+      document.getElementById('questName').innerHTML = "クエスト："+targetQuest.runk+targetQuest.name ;
+    var monsterList = joinMonster(targetQuest.monsterList);
+      document.getElementById('questMonster').innerHTML = "対象："+ monsterList ;
+      document.getElementById('status').innerHTML = "";
+    }
+
+    var questClear = function(){
+      if(targetQuest != null){
+        var statusMessage = "クエスト情報消去＋討伐数更新完了"
+        targetQuest.monsterList.forEach(monsterId => {
+          monsterData[monsterId-1].score += 1;
+        });
+        targetMonster = monsterData[targetMonster.id -1];
+        
+      var str = " 現在の狩猟数は「"+ targetMonster.score +"体」";
+      document.getElementById('huntCount').innerHTML = str ;
+      document.getElementById('monster').innerHTML = "モンスター："+ targetMonster.name ;
+        targetQuest = null;
+        document.getElementById('questMonster').innerHTML = "対象："
+        document.getElementById('questName').innerHTML = "クエスト："
+      }else{
+      var statusMessage = "クエストが指定されていません。"
+      }
+      document.getElementById('status').innerHTML = statusMessage;
+      update();
+    }
+
+    var update = function(){
+      for (var i = 0; i < monsterData.length; i++) { 
+        var totalList = document.createElement('li'); 
+        var monster = monsterData[i]
+        totalList.textContent = monster.name + ":" + monster.score;
+        document.getElementById('list').appendChild(totalList); 
+}
+    }
+
+    var joinMonster = function (monsterList){
+      var monsterNameList = monsterList.map(id => {
+        var monsterObject = monsterData.find(monster => monster.id === id);
+        return monsterObject.name; 
+      })
+      return monsterNameList.join(" & ");
+    }
+
+    var save = function(){
+      var saveData = JSON.stringify(monsterData);
+      alert( "ページ最下部にデータを出力しました。" );
+      document.getElementById('saveData').innerHTML = saveData;
+      var now = new Date
+      document.getElementById('lastSaveDate').innerHTML ="最終保存日時"+ now;
+    }
+
+    
+
+    var monsterData = [
+      //データ部
+      {id:1,name:"オサイズチ",score:22,norma:50,target:true},
+      {id:2,name:"ドスバギィ",score:15,norma:50,target:true},
+      {id:3,name:"クルルヤック",score:71,norma:50,target:true},
+      {id:4,name:"ドスフロギィ",score:22,norma:50,target:true},
+      {id:5,name:"アオアシラ",score:41,norma:50,target:true},
+      {id:6,name:"ウルクスス",score:21,norma:50,target:true},
+      {id:7,name:"ラングロトラ",score:92,norma:50,target:true},
+      {id:8,name:"アケノシルム",score:57,norma:50,target:true},
+      {id:9,name:"ロアルドロス",score:15,norma:50,target:true},
+      {id:10,name:"ボルボロス",score:35,norma:50,target:true},
+      {id:11,name:"ダイミョウザザミ",score:25,norma:50,target:true},
+      {id:12,name:"フルフル",score:21,norma:50,target:true},
+      {id:13,name:"ヨツミワドウ",score:29,norma:50,target:true},
+      {id:14,name:"ビシュテンゴ",score:26,norma:50,target:true},
+      {id:15,name:"ビシュテンゴ亜種",score:58,norma:50,target:true},
+      {id:16,name:"プケプケ",score:32,norma:50,target:true},
+      {id:17,name:"ジュラトドス",score:62,norma:50,target:true},
+      {id:18,name:"バサルモス",score:79,norma:50,target:true},
+      {id:19,name:"イソネミクニ",score:24,norma:50,target:true},
+      {id:20,name:"イソネミクニ亜種",score:50,norma:50,target:true},
+      {id:21,name:"リオレイア",score:40,norma:50,target:true},
+      {id:22,name:"ベリオロス",score:29,norma:50,target:true},
+      {id:23,name:"トビカガチ",score:20,norma:50,target:true},
+      {id:24,name:"マガイマガド",score:79,norma:50,target:true},
+      {id:25,name:"怨嗟響めくマガイマガド",score:2,norma:50,target:true},
+      {id:26,name:"アンジャナフ",score:37,norma:50,target:true},
+      {id:27,name:"ナルガクルガ",score:90,norma:50,target:true},
+      {id:28,name:"タマミツネ",score:29,norma:50,target:true},
+      {id:29,name:"ゴシャハギ",score:68,norma:50,target:true},
+      {id:30,name:"ガランゴルム",score:35,norma:50,target:true},
+      {id:31,name:"ショウグンギザミ",score:46,norma:50,target:true},
+      {id:32,name:"リオレウス",score:28,norma:50,target:true},
+      {id:33,name:"オロミドロ",score:59,norma:50,target:true},
+      {id:34,name:"オロミドロ亜種",score:44,norma:50,target:true},
+      {id:35,name:"ジンオウガ",score:44,norma:50,target:true},
+      {id:36,name:"ルナガロン",score:28,norma:50,target:true},
+      {id:37,name:"ライゼクス",score:48,norma:50,target:true},
+      {id:38,name:"エスピナス",score:39,norma:50,target:true},
+      {id:39,name:"ゴア・マガラ",score:61,norma:50,target:true},
+      {id:40,name:"セルレギオス",score:42,norma:50,target:true},
+      {id:41,name:"ティガレックス",score:59,norma:50,target:true},
+      {id:42,name:"ディアブロス",score:40,norma:50,target:true},
+      {id:43,name:"ヤツカダキ",score:35,norma:50,target:true},
+      {id:44,name:"ヤツカダキ亜種",score:46,norma:50,target:true},
+      {id:45,name:"クシャルダオラ",score:11,norma:30,target:true},
+      {id:46,name:"オオナズチ",score:26,norma:30,target:true},
+      {id:47,name:"テオ・テスカトル",score:33,norma:30,target:true},
+      {id:48,name:"メル・ゼナ",score:17,norma:30,target:true},
+      {id:49,name:"シャガルマガラ",score:26,norma:50,target:true},
+      {id:50,name:"ラージャン",score:74,norma:50,target:true},
+      {id:51,name:"激昂したラージャン",score:14,norma:50,target:true},
+      {id:52,name:"バゼルギウス",score:22,norma:50,target:true},
+      {id:53,name:"イブシマキヒコ",score:57,norma:30,target:true},
+      {id:54,name:"ナルハタタヒメ",score:97,norma:30,target:true},
+      {id:55,name:"百竜の淵源ナルハタタヒメ",score:16,norma:30,target:true},
+      {id:56,name:"奇しき赫耀のバルファルク",score:24,norma:30,target:true},
+      {id:57,name:"ガイアデルム",score:9,norma:30,target:true},
+      {id:58,name:"ヌシ・アオアシラ",score:16,norma:30,target:true},
+      {id:59,name:"ヌシ・リオレイア",score:22,norma:30,target:true},
+      {id:60,name:"ヌシ・タマミツネ",score:23,norma:30,target:true},
+      {id:61,name:"ヌシ・リオレウス",score:15,norma:30,target:true},
+      {id:62,name:"ヌシ・ディアブロス",score:40,norma:30,target:true},
+      {id:63,name:"ヌシ・ジンオウガ",score:14,norma:30,target:true}
+      //データ部
+    ]
+
+    var questData = [
+      {id:1,runk:"MR★１",name:"火、恐れるに足りず",monsterList:[8],target:true},
+      {id:2,runk:"MR★１",name:"迫り転がる赤い玉",monsterList:[7],target:true},
+      {id:3,runk:"MR★１",name:"あの身にまとう泥が決め手",monsterList:[10],target:true},
+      {id:4,runk:"MR★１",name:"密林のポイズンカーペット",monsterList:[4,4],target:true},
+      {id:5,runk:"MR★１",name:"ブルブルウトウト",monsterList:[2,6],target:true},
+      {id:6,runk:"MR★１",name:"可及的速やかに狩猟を",monsterList:[3],target:true},
+      {id:7,runk:"MR★１",name:"木陰の水獣ウォッチング",monsterList:[9],target:true},
+      {id:8,runk:"MR★１",name:"大社跡の相撲大会？",monsterList:[5,5],target:true},
+      {id:9,runk:"MR★１",name:"静寂を切り裂くもの",monsterList:[11],target:true},
+      {id:10,runk:"MR★１",name:"河童蛙の通せん坊",monsterList:[13],target:true},
+      {id:11,runk:"MR★１",name:"お手本は鎌鼬竜",monsterList:[1],target:true},
+      {id:12,runk:"MR★１",name:"ウルクスス、白いです",monsterList:[6],target:true},
+      {id:13,runk:"MR★１",name:"密林のガイドブック",monsterList:[9,11,13],target:true},
+      {id:14,runk:"MR★１",name:"安全な素材仕入れの巻",monsterList:[8],target:true},
+      {id:15,runk:"MR★★２",name:"迅雷、止めを知らず",monsterList:[23],target:true},
+      {id:16,runk:"MR★★２",name:"不気味な岩壁",monsterList:[18],target:true},
+      {id:17,runk:"MR★★２",name:"泥の底より来たる者",monsterList:[17],target:true},
+      {id:18,runk:"MR★★２",name:"大社跡の大喧嘩",monsterList:[1,21],target:true},
+      {id:19,runk:"MR★★２",name:"鳥竜の三連星",monsterList:[1,2,4],target:true},
+      {id:20,runk:"MR★★２",name:"女王様のたたずむ庭",monsterList:[21],target:true},
+      {id:21,runk:"MR★★２",name:"ただ喰らう白き化生",monsterList:[12],target:true},
+      {id:22,runk:"MR★★２",name:"安眠快眠イソネ枕",monsterList:[19],target:true},
+      {id:23,runk:"MR★★２",name:"砂塵に潜む毒々",monsterList:[16],target:true},
+      {id:24,runk:"MR★★２",name:"鳥竜夜会へようこそ",monsterList:[8,3],target:true},
+      {id:25,runk:"MR★★２",name:"ヤブをつついて蛮顎竜を出す",monsterList:[26],target:true},
+      {id:26,runk:"MR★★２",name:"緋色天狗の来攻",monsterList:[15],target:true},
+      {id:27,runk:"MR★★２",name:"腹ペコ天狗の小騒動",monsterList:[14],target:true},
+      {id:28,runk:"MR★★２",name:"忘れ時の花を君に",monsterList:[13,23],target:true},
+      {id:29,runk:"MR★★２",name:"純白のフルフルフルーツ",monsterList:[12,12],target:true},
+      {id:30,runk:"MR★★２",name:"ニョロニョロorウネウネ？",monsterList:[12,19],target:true},
+      {id:31,runk:"MR★★２",name:"泥と雷の波状攻撃",monsterList:[17,23],target:true},
+      {id:32,runk:"MR★★２",name:"砂山の陰に潜むモノ達",monsterList:[7,15,18],target:true},
+      {id:33,runk:"MR★★２",name:"松ぼっくりで滋養強壮？　の巻",monsterList:[15,15],target:true},
+      {id:34,runk:"MR★★２",name:"刺激的な肝試し♪",monsterList:[15,21],target:true},
+      {id:35,runk:"MR★★★３",name:"密林に潜む暗殺者",monsterList:[27],target:true},
+      {id:36,runk:"MR★★★３",name:"砂原巡る蜘蛛の巣",monsterList:[43],target:true},
+      {id:37,runk:"MR★★★３",name:"幸福の願いには怨念を",monsterList:[24],target:true},
+      {id:38,runk:"MR★★★３",name:"歌姫と大男の恋物語！？",monsterList:[19,30],target:true},
+      {id:39,runk:"MR★★★３",name:"盾と鎌でハサミ討ち！",monsterList:[11,31],target:true},
+      {id:40,runk:"MR★★★３",name:"泥翁竜の試練",monsterList:[33],target:true},
+      {id:41,runk:"MR★★★３",name:"音を断ち切る鎌",monsterList:[31],target:true},
+      {id:42,runk:"MR★★★３",name:"氷上の白騎士",monsterList:[22],target:true},
+      {id:43,runk:"MR★★★３",name:"雪鬼獣の服が欲しいの",monsterList:[29],target:true},
+      {id:44,runk:"MR★★★３",name:"迷惑千万、密林のならず者たち",monsterList:[23,26],target:true},
+      {id:45,runk:"MR★★★３",name:"凍える海から手招くもの",monsterList:[20],target:true},
+      {id:46,runk:"MR★★★３",name:"暴走せし剛力の怪物",monsterList:[30],target:true},
+      {id:47,runk:"MR★★★３",name:"冷たいの熱いの投げニャいで！",monsterList:[15,29],target:true},
+      {id:48,runk:"MR★★★３",name:"鋭い視線の牙竜調査",monsterList:[23,24],target:true},
+      {id:49,runk:"MR★★★３",name:"刹那往く二つ影",monsterList:[27,27],target:true},
+      {id:50,runk:"MR★★★３",name:"白雪映えるドレス作り",monsterList:[20,24],target:true},
+      {id:51,runk:"MR★★★３",name:"先輩狩人は背中で語る",monsterList:[8,15,21],target:true},
+      {id:52,runk:"MR★★★３",name:"ビショヒエでスヤスヤは嫌！",monsterList:[13,19,29],target:true},
+      {id:53,runk:"MR★★★３",name:"水没林の暴れん坊トリオ",monsterList:[9,15,17],target:true},
+      {id:54,runk:"MR★★★３",name:"たどり着いた神薬！？",monsterList:[11,21,23],target:true},
+      {id:55,runk:"MR★★★３",name:"砂中の落とし物捜索隊",monsterList:[18,26,33],target:true},
+      {id:56,runk:"MR★★★３",name:"飢餓がもたらす能力低下の考察",monsterList:[16,26],target:true},
+      {id:57,runk:"MR★★★３",name:"猛き炎に訪れる試練",monsterList:[21,24,27],target:true},
+      {id:58,runk:"MR★★★★４",name:"黒き衣を纏う竜",monsterList:[39],target:true},
+      {id:59,runk:"MR★★★★４",name:"絶対強者",monsterList:[41],target:true},
+      {id:60,runk:"MR★★★★４",name:"噴煙うずまく妃の御前",monsterList:[44],target:true},
+      {id:61,runk:"MR★★★★４",name:"城塞高地に悪霊のウワサ！？",monsterList:[30,36],target:true},
+      {id:62,runk:"MR★★★★４",name:"神なき社の雷狼竜",monsterList:[35],target:true},
+      {id:63,runk:"MR★★★★４",name:"千刃、襲来",monsterList:[40],target:true},
+      {id:64,runk:"MR★★★★４",name:"ドロはドロでも熱いドロドロ",monsterList:[34],target:true},
+      {id:65,runk:"MR★★★★４",name:"婦人に人気の白騎士と鎧武者",monsterList:[22,24],target:true},
+      {id:66,runk:"MR★★★★４",name:"泡狐竜のあのヒラヒラ",monsterList:[28],target:true},
+      {id:67,runk:"MR★★★★４",name:"砂塵に潜む暴君",monsterList:[42],target:true},
+      {id:68,runk:"MR★★★★４",name:"朽ちたる城に、王は眠る",monsterList:[32],target:true},
+      {id:69,runk:"MR★★★★４",name:"鎌と火炎の危険度問題",monsterList:[21,31],target:true},
+      {id:70,runk:"MR★★★★４",name:"スゴウデ薬師の捜索",monsterList:[37],target:true},
+      {id:71,runk:"MR★★★★４",name:"眠れる密林の棘竜",monsterList:[38],target:true},
+      {id:72,runk:"MR★★★★４",name:"氷狼、月を振り返らず",monsterList:[36],target:true},
+      {id:73,runk:"MR★★★★４",name:"城塞高地の護衛者",monsterList:[22,30],target:true},
+      {id:74,runk:"MR★★★★４",name:"双雷、夜影を照らす",monsterList:[35,35],target:true},
+      {id:75,runk:"MR★★★★４",name:"モンジュにハンター！？",monsterList:[42,42],target:true},
+      {id:76,runk:"MR★★★★４",name:"翠玉の電膜、青玉の鎌爪",monsterList:[31,37],target:true},
+      {id:77,runk:"MR★★★★４",name:"千に切り裂き、微塵につぶす",monsterList:[40,30],target:true},
+      {id:78,runk:"MR★★★★４",name:"モフモフさせて、今すぐに！",monsterList:[36,41],target:true},
+      {id:79,runk:"MR★★★★４",name:"アニキからお願い",monsterList:[18,41],target:true},
+      {id:80,runk:"MR★★★★４",name:"滾る後宮の権力あらそい",monsterList:[43,44],target:true},
+      {id:81,runk:"MR★★★★４",name:"ボクの釣り場を荒らさニャいで",monsterList:[28,30,33],target:true},
+      {id:82,runk:"MR★★★★４",name:"大社跡の荒くれトリオ",monsterList:[27,37,40],target:true},
+      {id:83,runk:"MR★★★★４",name:"燃える情熱！　溶岩洞の試練",monsterList:[32,34,43],target:true},
+      {id:84,runk:"MR★★★★４",name:"我ら荒野の三凶竜",monsterList:[40,41,42],target:true},
+      {id:85,runk:"MR★★★★４",name:"ヒエヒエビリビリボカンボカン",monsterList:[20,35,44],target:true},
+      {id:86,runk:"MR★★★★４",name:"極寒からは逃げられないの巻",monsterList:[20,36],target:true},
+      {id:87,runk:"MR★★★★４",name:"美しくも激しい移動術？　の巻",monsterList:[28,37],target:true},
+      {id:88,runk:"MR★★★★★５",name:"霞のごとく消え去る者",monsterList:[46],target:true},
+      {id:89,runk:"MR★★★★★５",name:"燃えさかる日輪より紅く",monsterList:[47],target:true},
+      {id:90,runk:"MR★★★★★５",name:"オトモ思いの助太刀ねがい",monsterList:[50],target:true},
+      {id:91,runk:"MR★★★★★５",name:"爆鱗注意報",monsterList:[52],target:true},
+      {id:92,runk:"MR★★★★★５",name:"危険な森林浴",monsterList:[35,36],target:true},
+      {id:93,runk:"MR★★★★★５",name:"暗黒にまみれし凶刃",monsterList:[39,40],target:true},
+      {id:94,runk:"MR★★★★★５",name:"黒の中の白",monsterList:[49],target:true},
+      {id:95,runk:"MR★★★★★５",name:"月光染めし紅",monsterList:[48],target:true},
+      {id:96,runk:"MR★★★★★５",name:"鋼龍、嵐に舞う",monsterList:[45],target:true},
+      {id:97,runk:"MR★★★★★５",name:"異常震域",monsterList:[41,41],target:true},
+      {id:98,runk:"MR★★★★★５",name:"陸と空の超危険生物",monsterList:[50,52],target:true},
+      {id:99,runk:"MR★★★★★５",name:"ウエもシタもこわいのニャ",monsterList:[42,52],target:true},
+      {id:100,runk:"MR★★★★★５",name:"剛と柔の極致",monsterList:[28,50],target:true},
+      {id:101,runk:"MR★★★★★５",name:"絆を力に変えるうさ団子の巻",monsterList:[49,50],target:true},
+      {id:102,runk:"MR★★★★★５",name:"状態異常がもたらす影響の研究",monsterList:[36,38,39],target:true},
+      {id:103,runk:"MR★★★★★★６",name:"坂巻く因果",monsterList:[53],target:true},
+      {id:104,runk:"MR★★★★★★６",name:"宿怨の叫喚",monsterList:[25],target:true},
+      {id:105,runk:"MR★★★★★★６",name:"悪魔の再来",monsterList:[57],target:true},
+      {id:106,runk:"MR★★★★★★６",name:"怒涛の理不尽",monsterList:[51],target:true},
+      {id:107,runk:"MR★★★★★★６",name:"奇しき輝き",monsterList:[56],target:true},
+      {id:108,runk:"MR★★★★★★６",name:"戦慄く神解【復顕】",monsterList:[55],target:true},
+      {id:109,runk:"MR★★★★★★６",name:"究極の大喧嘩勃発？",monsterList:[50,50],target:true},
+      {id:110,runk:"MR★★★★★★６",name:"卑怯なり！　爆鱗竜",monsterList:[52,52],target:true},
+      {id:111,runk:"MR★★★★★★６",name:"毒を以て、風を制す",monsterList:[38,45],target:true},
+      {id:112,runk:"MR★★★★★★６",name:"研究成果は霞に消えて",monsterList:[39,46],target:true},
+      {id:113,runk:"MR★★★★★★６",name:"あの輝きを取り戻して",monsterList:[44,47],target:true},
+      {id:114,runk:"MR★★★★★★６",name:"情熱と冷静の試練",monsterList:[48,50,52],target:true},
+      {id:115,runk:"MR★★★★★★６",name:"破滅の音は彼方より響く",monsterList:[30,36,48],target:true},
+      {id:116,runk:"MR★★★★★★６",name:"抑えきれぬ凶騒曲",monsterList:[24,37,39,41],target:true},
+      {id:117,runk:"MR★★★★★★６",name:"猛き炎の炎舞曲",monsterList:[15,26,32,47],target:true},
+      {id:118,runk:"MR★★★★★★６",name:"異なる者たちの四獣双曲",monsterList:[15,20,34,44],target:true},
+      {id:119,runk:"MR★★★★★★６",name:"粘り強さの秘訣とは？　の巻",monsterList:[39,46,48],target:true},
+      {id:120,runk:"MR★★★★★★６",name:"高難度：災厄を祓いし猛き炎",monsterList:[27,40,48,56],target:true},
+      {id:121,runk:"EX★１",name:"傀異調査：アオアシラ",monsterList:[5],target:true},
+      {id:122,runk:"EX★１",name:"傀異調査：オサイズチ",monsterList:[1],target:true},
+      {id:123,runk:"EX★１",name:"傀異調査：ドスバギィ",monsterList:[2],target:true},
+      {id:124,runk:"EX★１",name:"傀異調査：ドスフロギィ",monsterList:[4],target:true},
+      {id:125,runk:"EX★１",name:"傀異調査：ラングロトラ",monsterList:[7],target:true},
+      {id:126,runk:"EX★１",name:"傀異調査：クルルヤック",monsterList:[3],target:true},
+      {id:127,runk:"EX★１",name:"傀異調査：ウルクスス",monsterList:[6],target:true},
+      {id:128,runk:"EX★★２",name:"傀異調査：アケノシルム",monsterList:[8],target:true},
+      {id:129,runk:"EX★★２",name:"傀異調査：ヨツミワドウ",monsterList:[13],target:true},
+      {id:130,runk:"EX★★２",name:"傀異調査：ロアルドロス",monsterList:[9],target:true},
+      {id:131,runk:"EX★★２",name:"傀異調査：ダイミョウザザミ",monsterList:[11],target:true},
+      {id:132,runk:"EX★★２",name:"傀異調査：ボルボロス",monsterList:[10],target:true},
+      {id:133,runk:"EX★★２",name:"傀異調査：バサルモス",monsterList:[18],target:true},
+      {id:134,runk:"EX★★２",name:"傀異調査：ビシュテンゴ",monsterList:[14],target:true},
+      {id:135,runk:"EX★★２",name:"傀異調査：フルフル",monsterList:[12],target:true},
+      {id:136,runk:"EX★★★３",name:"傀異調査：ビシュテンゴ亜種",monsterList:[15],target:true},
+      {id:137,runk:"EX★★★３",name:"傀異調査：トビカガチ",monsterList:[23],target:true},
+      {id:138,runk:"EX★★★３",name:"傀異調査：リオレイア",monsterList:[21],target:true},
+      {id:139,runk:"EX★★★３",name:"傀異調査：イソネミクニ",monsterList:[19],target:true},
+      {id:140,runk:"EX★★★３",name:"傀異調査：ジュラトドス",monsterList:[17],target:true},
+      {id:141,runk:"EX★★★３",name:"傀異調査：アンジャナフ",monsterList:[26],target:true},
+      {id:142,runk:"EX★★★３",name:"傀異調査：プケプケ",monsterList:[16],target:true},
+      {id:143,runk:"EX★★★３",name:"傀異調査：ショウグンギザミ",monsterList:[31],target:true},
+      {id:144,runk:"EX★★★★４",name:"傀異調査：ガランゴルム",monsterList:[30],target:true},
+      {id:145,runk:"EX★★★★４",name:"傀異調査：イソネミクニ亜種",monsterList:[20],target:true},
+      {id:146,runk:"EX★★★★４",name:"傀異調査：ゴシャハギ",monsterList:[29],target:true},
+      {id:147,runk:"EX★★★★４",name:"傀異調査：マガイマガド",monsterList:[24],target:true},
+      {id:148,runk:"EX★★★★４",name:"傀異調査：ヤツカダキ",monsterList:[43],target:true},
+      {id:149,runk:"EX★★★★４",name:"傀異調査：ナルガクルガ",monsterList:[27],target:true},
+      {id:150,runk:"EX★★★★４",name:"傀異調査：ベリオロス",monsterList:[22],target:true},
+      {id:151,runk:"EX★★★★４",name:"傀異調査：オロミドロ",monsterList:[33],target:true}
+
+
+
+
+
+
+
+
+
+
+
+
+
+    ]
+</script>
