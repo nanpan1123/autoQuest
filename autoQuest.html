@@ -108,11 +108,12 @@ checkbox.addEventListener('change', valueChange);
         targetQuest.monsterList.forEach(monsterId => {
           monsterData[monsterId-1].score += 1;
         });
-        targetMonster = monsterData[targetMonster.id -1];
-        
-      var str = " 現在の狩猟数は「"+ targetMonster.score +"体」";
-      document.getElementById('huntCount').innerHTML = str ;
-      document.getElementById('monster').innerHTML = "モンスター："+ targetMonster.name ;
+        if(targetMonster != null){
+          targetMonster = monsterData[targetMonster.id -1];
+          var str = " 現在の狩猟数は「"+ targetMonster.score +"体」";
+          document.getElementById('huntCount').innerHTML = str ;
+          document.getElementById('monster').innerHTML = "モンスター："+ targetMonster.name ;
+        }
         targetQuest = null;
         document.getElementById('questMonster').innerHTML = "対象："
         document.getElementById('questName').innerHTML = "クエスト："
@@ -124,6 +125,11 @@ checkbox.addEventListener('change', valueChange);
     }
 
     var update = function(){
+      var parent = document.getElementById("list")
+      while(parent.firstChild){
+        parent.removeChild(parent.firstChild);
+      }
+
       for (var i = 0; i < monsterData.length; i++) { 
         var totalList = document.createElement('li'); 
         var monster = monsterData[i]
